@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>TypeSound Studio</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#131b2e;--panel2:#18233a;--line:#2a3854;--text:#f2f5ff;--muted:#a8b4ce;--accent:#8b9cff;--accent2:#a5f3d0;--danger:#ffb4b4}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 12% 0%,#1d2b51 0,transparent 44%),var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+main{width:min(1080px,100% - 32px);margin:36px auto 56px}
+header{margin-bottom:26px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#a5b4fc,#6ee7b7);color:#10172b;font-size:24px;font-weight:900}
+h1{font-size:clamp(1.8rem,4vw,2.6rem);letter-spacing:-.04em;margin:0}
+header p{max-width:720px;color:var(--muted);margin:10px 0 0}
+.layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);gap:18px;align-items:start}
+.panel{background:linear-gradient(180deg,rgba(24,35,58,.97),rgba(19,27,46,.98));border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:0 16px 45px #0002;min-width:0}
+h2{font-size:1.05rem;margin:0 0 16px}
+.field{margin:0 0 18px}
+label,.field-label{display:block;font-size:.9rem;font-weight:700;margin-bottom:7px}
+input[type=file],input[type=text],textarea,select{width:100%;border:1px solid #394966;background:#0c1427;color:var(--text);border-radius:11px;padding:12px 13px;font:inherit}
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid #a5b4fc;outline-offset:2px}
+input[type=file]{padding:10px}
+small,.hint{display:block;color:var(--muted);font-size:.82rem;margin-top:6px}
+.file-info{border:1px dashed #40516f;border-radius:12px;padding:12px;color:var(--muted);font-size:.9rem;overflow-wrap:anywhere}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.checkline{display:flex;align-items:center;gap:9px;margin:12px 0;color:var(--muted);font-size:.9rem}
+.checkline input{width:17px;height:17px;accent-color:var(--accent)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+button{border:1px solid transparent;border-radius:11px;padding:11px 15px;font:700 .92rem/1.2 system-ui;cursor:pointer;transition:transform .12s ease,filter .12s ease}
+button:hover:not(:disabled){filter:brightness(1.08);transform:translateY(-1px)}
+button:disabled{opacity:.42;cursor:not-allowed}
+.primary{background:linear-gradient(135deg,#a5b4fc,#8b9cff);color:#10172b}
+.secondary{background:#24314c;border-color:#3a4b6c;color:var(--text)}
+.download{background:#a5f3d0;color:#0a2a22}
+.status{padding:11px 13px;border-radius:11px;background:#0c1427;border:1px solid var(--line);margin-top:16px;color:var(--muted);font-size:.9rem;overflow-wrap:anywhere}
+.status[data-kind=ok]{color:#a5f3d0;border-color:#326854}
+.status[data-kind=error]{color:var(--danger);border-color:#70404b}
+.preview{min-height:180px;display:grid;place-items:center;text-align:center;padding:20px;border-radius:14px;background:#0c1427;border:1px solid #2b3956;overflow-wrap:anywhere}
+.preview-text{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:750;letter-spacing:-.035em;line-height:1.25;white-space:pre-wrap}
+.preview-char{visibility:hidden}
+.preview-char.is-visible{visibility:visible}
+.preview-char.space{white-space:pre}
+.preview-caption{font-size:.82rem;color:var(--muted);margin-top:12px}
+details{margin-top:16px;color:var(--muted);font-size:.88rem}
+summary{cursor:pointer;color:var(--text);font-weight:700}
+footer{color:var(--muted);font-size:.82rem;margin-top:20px}
+@media(max-width:760px){main{margin-top:22px}.layout{grid-template-columns:1fr}.panel{padding:17px}.options{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="brand"><div class="logo" aria-hidden="true">T</div><div><h1>TypeSound Studio</h1><div class="hint">Escritura animada con sonido para tus páginas HTML</div></div></div>
+  <p>Añade escritura progresiva a una frase de tu página sin rediseñarla. El archivo se procesa localmente en este navegador; no se sube a ningún servidor.</p>
+</header>
+<div class="layout">
+<section class="panel" aria-labelledby="setup-title">
+<h2 id="setup-title">1. Configura la animación</h2>
+<div class="field">
+<label for="htmlFile">Archivo HTML (.html o .htm)</label>
+<input id="htmlFile" type="file" accept=".html,.htm,text/html">
+<div class="file-info" id="fileInfo" aria-live="polite">Ningún archivo seleccionado.</div>
+<small>Límite: 5 MB. Se conserva el archivo original; la descarga será una copia modificada.</small>
+</div>
+<div class="field">
+<label for="phrase">¿Qué frase quieres animar?</label>
+<textarea id="phrase" rows="2" placeholder="Ej.: Estilo que te mueve."></textarea>
+<small>Escribe el texto visible, aunque en el HTML esté dividido entre etiquetas o saltos de línea.</small>
+</div>
+<div class="options">
+<div class="field">
+<label for="speed">Velocidad</label>
+<select id="speed"><option value="fast">Rápida</option><option value="natural" selected>Natural</option><option value="slow">Lenta</option></select>
+</div>
+<div class="field">
+<label for="sound">Sonido</label>
+<select id="sound"><option value="soft">Tecla suave</option><option value="typewriter">Máquina de escribir (simulada)</option><option value="digital">Clic digital</option><option value="none">Sin sonido</option></select>
+</div>
+</div>
+<label class="checkline"><input type="checkbox" id="soundEnabled" checked> Activar sonido</label>
+<label class="checkline"><input type="checkbox" id="repeat"> Repetir al volver a entrar en pantalla</label>
+<div class="actions">
+<button class="secondary" id="previewBtn" type="button">Probar aquí</button>
+<button class="primary" id="applyBtn" type="button">Aplicar animación</button>
+<button class="download" id="downloadBtn" type="button" disabled>Descargar HTML modificado</button>
+</div>
+<div class="status" id="status" role="status" aria-live="polite">Selecciona un archivo y escribe la frase que quieres animar.</div>
+</section>
+<section class="panel" aria-labelledby="preview-title">
+<h2 id="preview-title">2. Vista previa</h2>
+<div class="preview" aria-label="Vista previa de la frase animada"><div class="preview-text" id="previewText">Tu frase aparecerá aquí</div></div>
+<div class="preview-caption">La vista previa ilustra el ritmo y el sonido. La apariencia final dependerá de la tipografía y el contexto de tu página original.</div>
+<details>
+<summary>Qué conserva y qué debes saber</summary>
+<ul>
+<li>El procesamiento añade un script autónomo y marca los caracteres de la frase elegida; no reemplaza tu página por una plantilla.</li>
+<li>El analizador HTML del navegador puede normalizar detalles de formato al guardar. No se garantiza identidad byte por byte.</li>
+<li>Las frases en elementos separados por etiquetas o saltos de línea se comparan con espacios normalizados. Si hay varias coincidencias, debes escoger una.</li>
+<li>Algunos componentes dinámicos o frameworks que reconstruyen el contenido pueden requerir ajustes manuales.</li>
+<li>El sonido se genera de forma sintética con Web Audio API y depende de las políticas del navegador y de la interacción del usuario.</li>
+</ul>
+</details>
+</section>
+</div>
+<footer>TypeSound Studio · Sin cuenta, API, servidor ni dependencias externas.</footer>
+</main>
+<script>
+(() => {
+'use strict';
+const MAX_BYTES = 5 * 1024 * 1024;
+const $ = id => document.getElementById(id);
+const fileInput = $('htmlFile'), phraseInput = $('phrase'), speedInput = $('speed');
+const soundInput = $('sound'), soundEnabledInput = $('soundEnabled'), repeatInput = $('repeat');
+const statusBox = $('status'), previewText = $('previewText'), downloadBtn = $('downloadBtn');
+let loadedFile = null, loadedSource = '', processedBlob = null, audioContext = null, previewRun = 0;
+
+function setStatus(message, kind='') {
+  statusBox.textContent = message;
+  statusBox.dataset.kind = kind;
+}
+function normalize(s) {
+  return String(s).replace(/\u00a0/g, ' ').replace(/[\s\u200b]+/g, ' ').trim();
+}
+function safeSize(bytes) {
+  return bytes < 1024 ? `${bytes} bytes` : `${(bytes/1024).toFixed(1)} KB`;
+}
+function resetOutput() {
+  processedBlob = null;
+  downloadBtn.disabled = true;
+}
+fileInput.addEventListener('change', async () => {
+  resetOutput();
+  const file = fileInput.files && fileInput.files[0];
+  loadedFile = null; loadedSource = '';
+  if (!file) { $('fileInfo').textContent = 'Ningún archivo seleccionado.'; return; }
+  if (!/\.(html?|HTML?)$/.test(file.name) && file.type !== 'text/html') {
+    $('fileInfo').textContent = 'Tipo de archivo no válido.';
+    setStatus('Selecciona un archivo .html o .htm.', 'error'); fileInput.value=''; return;
+  }
+  if (!file.size) { $('fileInfo').textContent = 'El archivo está vacío.'; setStatus('No se puede procesar un archivo vacío.', 'error'); fileInput.value=''; return; }
+  if (file.size > MAX_BYTES) { $('fileInfo').textContent = 'El archivo supera el límite.'; setStatus('El archivo supera el límite de 5 MB.', 'error'); fileInput.value=''; return; }
+  try {
+    loadedSource = await file.text();
+    if (!loadedSource.trim()) throw new Error('El archivo no contiene HTML legible.');
+    loadedFile = file;
+    $('fileInfo').textContent = `${file.name} · ${safeSize(file.size)} · Cargado correctamente`;
+    setStatus('Archivo cargado correctamente. Escribe la frase visible que deseas animar.', 'ok');
+  } catch (err) {
+    loadedSource=''; loadedFile=null; setStatus(err.message || 'No se pudo leer el archivo.', 'error');
+  }
+});
+phraseInput.addEventListener('input', resetOutput);
+[speedInput,soundInput,soundEnabledInput,repeatInput].forEach(el => el.addEventListener('change', resetOutput));
+
+function graphemes(s) {
+  if (window.Intl && Intl.Segmenter) return [...new Intl.Segmenter('es',{granularity:'grapheme'}).segment(s)].map(x=>x.segment);
+  return Array.from(s);
+}
+function delayFor(ch, speed) {
+  const base = speed === 'fast' ? 24 : speed === 'slow' ? 105 : 52;
+  return /[.,;:!?]/u.test(ch) ? base * 5 : /\s/u.test(ch) ? base * .7 : base;
+}
+function getAudio() {
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if (!Ctx) return null;
+  try { if (!audioContext) audioContext = new Ctx(); if (audioContext.state === 'suspended') audioContext.resume(); return audioContext; }
+  catch (_) { return null; }
+}
+function playTick(mode) {
+  if (!soundEnabledInput.checked || mode === 'none') return;
+  const ctx = getAudio(); if (!ctx) return;
+  const now = ctx.currentTime, osc = ctx.createOscillator(), gain = ctx.createGain();
+  const settings = mode === 'digital' ? [1050,.018,'square'] : mode === 'typewriter' ? [720,.035,'triangle'] : [520,.022,'sine'];
+  osc.type = settings[2]; osc.frequency.setValueAtTime(settings[0],now);
+  if (mode === 'typewriter') osc.frequency.exponentialRampToValueAtTime(260,now+.025);
+  gain.gain.setValueAtTime(.0001,now); gain.gain.exponentialRampToValueAtTime(settings[1],now+.003); gain.gain.exponentialRampToValueAtTime(.0001,now+.04);
+  osc.connect(gain); gain.connect(ctx.destination); osc.start(now); osc.stop(now+.045);
+}
+function preview() {
+  const run = ++previewRun;
+  const phrase = phraseInput.value;
+  previewText.replaceChildren();
+  if (!phrase.trim()) { previewText.textContent='Escribe una frase para previsualizarla'; setStatus('Escribe una frase antes de probar la animación.', 'error'); return; }
+  const chars = graphemes(phrase);
+  chars.forEach(ch => {
+    const span = document.createElement('span'); span.className='preview-char'; span.textContent=ch;
+    if (/^\s+$/u.test(ch)) span.classList.add('space');
+    previewText.append(span);
+  });
+  const nodes = [...previewText.children];
+  setStatus('Reproduciendo la vista previa…', '');
+  let i=0;
+  const next=()=>{
+    if(run!==previewRun) return;
+    if(i>=nodes.length){setStatus('Vista previa completada.', 'ok');return;}
+    nodes[i].classList.add('is-visible');
+    if(!/^\s+$/u.test(chars[i])) playTick(soundInput.value);
+    const wait=delayFor(chars[i],speedInput.value); i++;
+    window.setTimeout(next,wait);
+  };
+  // Audio starts only after this user-triggered action.
+  getAudio(); next();
+}
+$('previewBtn').addEventListener('click', preview);
+phraseInput.addEventListener('keydown', e => { if ((e.ctrlKey||e.metaKey) && e.key==='Enter') preview(); });
+
+const EXCLUDED = new Set(['SCRIPT','STYLE','TEXTAREA','INPUT','SELECT','OPTION','SVG','CANVAS','NOSCRIPT','TEMPLATE']);
+function isExcluded(el) {
+  for(let n=el; n && n.nodeType===1; n=n.parentElement) {
+    if(EXCLUDED.has(n.tagName) || n.isContentEditable || n.hasAttribute('hidden') || n.getAttribute('aria-hidden')==='true') return true;
+    const style = n.getAttribute('style') || '';
+    if(/display\s*:\s*none|visibility\s*:\s*hidden/i.test(style)) return true;
+  }
+  return false;
+}
+function collectTextRuns(root) {
+  const runs=[]; let text='';
+  const walker=document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      if(node.nodeType===1) {
+        if(node!==root && (EXCLUDED.has(node.tagName) || node.isContentEditable || node.hasAttribute('hidden'))) return NodeFilter.FILTER_REJECT;
+        if(node.tagName==='BR') return NodeFilter.FILTER_ACCEPT;
+        return NodeFilter.FILTER_SKIP;
+      }
+      return node.nodeValue ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+    }
+  });
+  let node;
+  while((node=walker.nextNode())) {
+    if(node.nodeType===1 && node.tagName==='BR') {
+      text += ' ';
+      runs.push({kind:'break', node, start:text.length-1, end:text.length});
+    } else {
+      const value=node.nodeValue;
+      runs.push({kind:'text',node,start:text.length,end:text.length+value.length,value});
+      text+=value;
+    }
+  }
+  return {text,runs};
+}
+function findMatches(doc, phrase) {
+  const wanted=normalize(phrase);
+  if(!wanted) return [];
+  const all=[];
+  const roots=doc.body ? [doc.body] : [doc.documentElement];
+  const walker=doc.createTreeWalker(roots[0],NodeFilter.SHOW_ELEMENT);
+  const elements=[roots[0]];
+  let el; while((el=walker.nextNode())) elements.push(el);
+  for(const root of elements) {
+    if(isExcluded(root)) continue;
+    // Skip huge structural roots; leaf-ish elements avoid counting the same phrase at every ancestor.
+    if(['HTML','BODY','MAIN','SECTION','ARTICLE','DIV','HEADER','FOOTER','NAV','UL','OL'].includes(root.tagName)) continue;
+    const {text,runs}=collectTextRuns(root);
+    const normalized=normalize(text);
+    if(!normalized) continue;
+    const at=normalized.indexOf(wanted);
+    if(at<0) continue;
+    // Convert the normalized match back into original text-node offsets with a character map.
+    const map=[]; let pendingSpace=false;
+    for(const run of runs) {
+      if(run.kind==='break') { map.push({node:run.node,offset:0,break:true,ch:' '}); continue; }
+      for(let i=0;i<run.value.length;i++) map.push({node:run.node,offset:i,break:false,ch:run.value[i]});
+    }
+    const normalizedMap=[]; let inSpace=false;
+    for(const m of map) {
+      const ch=m.ch.replace(/\u00a0/g,' ');
+      if(/[\s\u200b]/u.test(ch)) {
+        if(!inSpace) normalizedMap.push({...m,ch:' '});
+        inSpace=true;
+      } else { normalizedMap.push({...m,ch}); inSpace=false; }
+    }
+    while(normalizedMap.length && normalizedMap[0].ch===' ') normalizedMap.shift();
+    while(normalizedMap.length && normalizedMap[normalizedMap.length-1].ch===' ') normalizedMap.pop();
+    const actual=normalizedMap.map(m=>m.ch).join('');
+    if(actual!==normalized) continue;
+    const end=at+wanted.length;
+    const selected=normalizedMap.slice(at,end);
+    if(selected.length===wanted.length) all.push({root,selected,phrase:wanted});
+  }
+  // Prefer the smallest matching root and remove duplicate nested matches.
+  all.sort((a,b)=>a.root.querySelectorAll('*').length-b.root.querySelectorAll('*').length);
+  return all.filter((m,i,arr)=>!arr.some((other,j)=>j!==i && other.selected[0]?.node===m.selected[0]?.node && other.selected.at(-1)?.node===m.selected.at(-1)?.node && other.root.contains(m.root)));
+}
+function markMatch(match) {
+  const byNode=new Map();
+  for(const item of match.selected) {
+    if(item.break) continue;
+    if(!byNode.has(item.node)) byNode.set(item.node,new Set());
+    byNode.get(item.node).add(item.offset);
+  }
+  for(const [node, offsets] of byNode) {
+    const value=node.nodeValue, frag=document.createDocumentFragment();
+    let i=0;
+    while(i<value.length) {
+      if(!offsets.has(i)) {
+        let j=i+1; while(j<value.length && !offsets.has(j)) j++;
+        frag.append(document.createTextNode(value.slice(i,j))); i=j;
+      } else {
+        const chars=graphemes(value.slice(i))[0] || value[i];
+        // DOM mapping is UTF-16 based; group combining marks/surrogates in the selected range.
+        let end=i+chars.length;
+        while(end>i && ![...Array(end-i)].every((_,k)=>offsets.has(i+k))) end=i+1;
+        const span=document.createElement('span');
+        span.setAttribute('data-typesound-char','');
+        span.textContent=value.slice(i,end);
+        frag.append(span); i=end;
+      }
+    }
+    node.parentNode.replaceChild(frag,node);
+  }
+}
+function makeRuntimeScript(config) {
+  const json=JSON.stringify(config).replace(/</g,'\\u003c').replace(/<\/script/gi,'<\\/script');
+  return `/* TYPESOUND_STUDIO_RUNTIME_V1 */
+(function(){
+'use strict';
+if(window.__typesoundStudioV1)return;window.__typesoundStudioV1=true;
+var cfg=${json}, started=false, audio=null;
+function audioTick(){
+ if(!cfg.soundEnabled||cfg.sound==='none')return;
+ try{var C=window.AudioContext||window.webkitAudioContext;if(!C)return;if(!audio)audio=new C();if(audio.state==='suspended')audio.resume();
+ var o=audio.createOscillator(),g=audio.createGain(),n=audio.currentTime;
+ o.type=cfg.sound==='digital'?'square':cfg.sound==='typewriter'?'triangle':'sine';
+ o.frequency.setValueAtTime(cfg.sound==='digital'?1050:cfg.sound==='typewriter'?720:520,n);
+ if(cfg.sound==='typewriter')o.frequency.exponentialRampToValueAtTime(260,n+.025);
+ g.gain.setValueAtTime(.0001,n);g.gain.exponentialRampToValueAtTime(cfg.sound==='digital'?.018:cfg.sound==='typewriter'?.035:.022,n+.003);g.gain.exponentialRampToValueAtTime(.0001,n+.04);
+ o.connect(g);g.connect(audio.destination);o.start(n);o.stop(n+.045);
+ }catch(e){}
+}
+function run(root){
+ if(root.dataset.typesoundRunning==='1')return;
+ root.dataset.typesoundRunning='1';
+ var chars=Array.prototype.slice.call(root.querySelectorAll('[data-typesound-char]')),i=0;
+ chars.forEach(function(c){c.style.visibility='hidden';});
+ function next(){
+  if(i>=chars.length){root.dataset.typesoundDone='1';root.dataset.typesoundRunning='0';return;}
+  var c=chars[i++];c.style.visibility='visible';
+  if(!/^\\s+$/u.test(c.textContent))audioTick();
+  var t=cfg.speed==='fast'?24:cfg.speed==='slow'?105:52;
+  if(/[.,;:!?]/u.test(c.textContent))t*=5;
+  window.setTimeout(next,t);
+ }
+ next();
+}
+function init(){
+ var targets=Array.prototype.slice.call(document.querySelectorAll('[data-typesound-target="v1"]'));
+ if(!targets.length)return;
+ if(cfg.repeat&&'IntersectionObserver'in window){
+  var io=new IntersectionObserver(function(entries){entries.forEach(function(e){if(e.isIntersecting&&e.target.dataset.typesoundDone!=='1'){run(e.target);} });},{threshold:.25});
+  targets.forEach(function(t){io.observe(t);});
+ }else{targets.forEach(function(t){run(t);});}
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+})();`;
+}
+function commonAncestor(nodes) {
+  if (!nodes.length) return null;
+  let ancestor = nodes[0].parentElement;
+  while (ancestor && !nodes.every(n => ancestor.contains(n))) ancestor = ancestor.parentElement;
+  return ancestor;
+}
+function cleanPreviousTypeSound(doc) {
+  doc.querySelectorAll('script[data-typesound-runtime="v1"]').forEach(el => el.remove());
+  doc.querySelectorAll('[data-typesound-char]').forEach(span => {
+    span.replaceWith(doc.createTextNode(span.textContent || ''));
+  });
+  doc.querySelectorAll('[data-typesound-target="v1"]').forEach(el => el.removeAttribute('data-typesound-target'));
+}
+function processHtml() {
+  resetOutput();
+  if(!loadedFile || !loadedSource){setStatus('Primero selecciona un archivo HTML válido.','error');return;}
+  const phrase=phraseInput.value;
+  if(!normalize(phrase)){setStatus('Escribe la frase que quieres animar.','error');return;}
+  try {
+    const doc=new DOMParser().parseFromString(loadedSource,'text/html');
+    cleanPreviousTypeSound(doc);
+    const matches=findMatches(doc,phrase);
+    if(!matches.length){setStatus('Frase no encontrada. Revisa el texto visible, los espacios y la puntuación. No se generó ningún archivo.','error');return;}
+    let chosenMatch = matches[0];
+    if(matches.length>1){
+      const chosen=window.prompt(`Se encontraron ${matches.length} coincidencias. Escribe el número de la que quieres animar (1-${matches.length}).\\n\\n`+matches.map((m,i)=>`${i+1}. <${m.root.tagName.toLowerCase()}> ${m.root.textContent.trim().replace(/\\s+/g,' ').slice(0,100)}`).join('\\n'),'1');
+      if(chosen===null){setStatus(`Se encontraron ${matches.length} coincidencias. Operación cancelada; no se generó ningún archivo.`, '');return;}
+      const n=Number(chosen);
+      if(!Number.isInteger(n)||n<1||n>matches.length){setStatus('Selección no válida. No se generó ningún archivo.','error');return;}
+      chosenMatch=matches[n-1];
+    }
+    const originalNodes=[...new Set(chosenMatch.selected.filter(x=>!x.break).map(x=>x.node))];
+    const target=commonAncestor(originalNodes);
+    if(!target){setStatus('No se pudo determinar un contenedor seguro para la frase.','error');return;}
+    markMatch(chosenMatch);
+    target.setAttribute('data-typesound-target','v1');
+    const config={phrase:normalize(phrase),speed:speedInput.value,sound:soundInput.value,soundEnabled:soundEnabledInput.checked,repeat:repeatInput.checked};
+    const runtime=doc.createElement('script');
+    runtime.setAttribute('data-typesound-runtime','v1');
+    runtime.textContent=makeRuntimeScript(config);
+    (doc.body||doc.documentElement).appendChild(runtime);
+    const result='<!doctype html>\\n'+doc.documentElement.outerHTML;
+    if(!result.includes('TYPESOUND_STUDIO_RUNTIME_V1')||!result.includes('data-typesound-char')||!result.includes('data-typesound-target="v1"')) throw new Error('La comprobación del resultado no encontró todos los recursos de animación.');
+    processedBlob=new Blob([result],{type:'text/html;charset=utf-8'});
+    downloadBtn.disabled=false;
+    setStatus(matches.length>1 ? `Se encontraron ${matches.length} coincidencias. Se aplicó la animación a la opción ${matches.indexOf(chosenMatch)+1}; archivo preparado para descargar.` : 'Frase encontrada. Animación aplicada y archivo preparado para descargar. El HTML original no se ha sobrescrito.','ok');
+  } catch(err) {
+    resetOutput(); setStatus('Error al procesar el HTML: '+(err.message||'error desconocido')+'. No se habilitó la descarga.','error');
+  }
+}
+$('applyBtn').addEventListener('click', processHtml);
+downloadBtn.addEventListener('click',()=>{
+  if(!processedBlob||!loadedFile)return;
+  const url=URL.createObjectURL(processedBlob),a=document.createElement('a');
+  const base=loadedFile.name.replace(/\.html?$/i,'');
+  a.href=url;a.download=base+'-typesound.html';document.body.appendChild(a);a.click();a.remove();
+  window.setTimeout(()=>URL.revokeObjectURL(url),1500);
+  setStatus('Descarga iniciada: '+base+'-typesound.html','ok');
+});
+})();
+</script>
+</body>
+</html>
